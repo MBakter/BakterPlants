@@ -1,7 +1,5 @@
 package gamelogic;
 
-import javax.swing.JButton;
-
 public class Plot {
     private Plant[][] array;
     private int avaliableParcels;
@@ -11,10 +9,10 @@ public class Plot {
 
     public Plot() {
         array = new Plant[7][6];
-        avaliableParcels = 1;
-        numberOfFruits = 0;
-        applePrice = 0;
-        plotPrice = 10;
+        avaliableParcels = 0;
+        numberOfFruits = 10000000;
+        applePrice = 0; //TODO: Make this a Set collection so it iterates through every plantType thus gaining the price from all Plants
+        plotPrice = 0;
     }
 
     public int getFruits() {
@@ -37,19 +35,7 @@ public class Plot {
         numberOfFruits += incrementValue;
     }
 
-    //This adds a new button to the grid
-    /*private void increaseParcels() {
-        JButton plantButton = new JButton();
-
-        plantButton.addActionListener(e -> {
-            if(currentyPlanting != PlantType.NONE){
-                currentyPlanting = PlantType.NONE;
-            }
-            plot.IncreaseFruit(1); 
-            updateFruitCounterLabel();
-        });
-    }*/
-
+    //Make this method buyFruit, and the type in its argument
     public boolean buyApple() {
         if(numberOfFruits < applePrice && avaliableParcels <= 0)
             return false;
@@ -58,6 +44,7 @@ public class Plot {
 
         if(applePrice == 0)
             applePrice = 1;
+        numberOfFruits -= applePrice;
         applePrice *= 1.5; //Mindig a másfélszeresébe kerül TODO: Kitalálni egy jobb "emelőfüggvényt" az 'y(x) = 1.5x' -nél
         return true;
     }
@@ -66,14 +53,33 @@ public class Plot {
         if(numberOfFruits < plotPrice)
             return false;
 
-        //TODO: Initiate buy plot sequence
+        numberOfFruits -= plotPrice;
+        if(plotPrice == 0)
+            plotPrice = 10;
 
         plotPrice *= 2;
+        avaliableParcels++;
         return true;
     }
 
     //Ide lehetne, hogy PlantType típust kap és úgy hív meg egy static fv-t pl. Apple.plant();
-    public void plantPlant(int row, int col) {
-        
+    public void plantPlant(int row, int col, PlantType plant) {
+        switch (plant) {
+            case APPLE:
+                array[row][col] = new Apple(); //TODO Implement these!!!!!!!!
+                break;
+            case GRAPE:
+                array[row][col] = new Grape();
+                break;
+            case BANANA:
+                array[row][col] = new Banana();
+                break;
+            case PINEAPPLE:
+                array[row][col] = new Pineapple();
+                break;
+            default:
+                break;
+        }
+         
     }
 }

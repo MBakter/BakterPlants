@@ -1,15 +1,14 @@
 package gamelogic;
 
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import frontend.GameGUI;
 
 public class Plant {
-    public PlantType type;
-    public int time;
-    private static int price;
-    private JButton button;
+    public static PlantType type;
+    public int time;        //In seconds
+    protected static int price;
+    public static ImageIcon icon;
 
     Plant() {
+
     }
 }
