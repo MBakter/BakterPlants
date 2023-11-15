@@ -22,6 +22,22 @@ public class GameGUI {
     private int WIDTH = 1400;
     private int HEIGHT = 1200;
 
+    public GameGUI() {
+        createFrame();        
+        createPlotPanel();
+
+        plot = new Plot(this);
+        
+        createTopPanel();
+        createMarketPanel();
+
+        frame.add(plotPanel, BorderLayout.CENTER);
+        frame.add(topPanel, BorderLayout.NORTH);
+        frame.add(marketPanel, BorderLayout.EAST);
+
+        frame.setVisible(true);
+    }
+
     public void updateFruitCounterLabel() {
         fruitCounterLabel.setText("Fruits: " + plot.getFruits());
     }
@@ -36,22 +52,6 @@ public class GameGUI {
     //If we need to modify the plantlabel in x,y
     public JLabel getPlantLabels(int row, int col) {
         return plantLabels[row][col];
-    }
-    
-    public GameGUI() {
-        createFrame();        
-        createPlotPanel();
-
-        plot = new Plot();
-        
-        createTopPanel();
-        createMarketPanel();
-
-        frame.add(plotPanel, BorderLayout.CENTER);
-        frame.add(topPanel, BorderLayout.NORTH);
-        frame.add(marketPanel, BorderLayout.EAST);
-
-        frame.setVisible(true);
     }
 
     private void createFrame() {
@@ -138,7 +138,9 @@ public class GameGUI {
 
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                //TODO: Ha van ott plant akkor ne lehessen, plotban getType[i][j]
                 plot.plantPlant(row, col, pType);
+                updateFruitCounterLabel();
             }
             
         });

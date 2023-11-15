@@ -1,5 +1,7 @@
 package gamelogic;
 
+import frontend.GameGUI;
+
 public class Plot {
     private Plant[][] array;
     private int avaliableParcels;
@@ -7,11 +9,13 @@ public class Plot {
     private int applePrice;
     private int plotPrice;
 
-    public Plot() {
+    private GameGUI game;
+
+    public Plot(GameGUI g) {
+        game = g;
         array = new Plant[7][6];
         avaliableParcels = 0;
-        numberOfFruits = 10000000;
-        applePrice = 0; //TODO: Make this a Set collection so it iterates through every plantType thus gaining the price from all Plants
+        numberOfFruits = 0;
         plotPrice = 0;
     }
 
@@ -35,20 +39,6 @@ public class Plot {
         numberOfFruits += incrementValue;
     }
 
-    //Make this method buyFruit, and the type in its argument
-    public boolean buyApple() {
-        if(numberOfFruits < applePrice && avaliableParcels <= 0)
-            return false;
-        
-        //TODO: Initiate buy apple sequence: Choose a plot
-
-        if(applePrice == 0)
-            applePrice = 1;
-        numberOfFruits -= applePrice;
-        applePrice *= 1.5; //Mindig a másfélszeresébe kerül TODO: Kitalálni egy jobb "emelőfüggvényt" az 'y(x) = 1.5x' -nél
-        return true;
-    }
-
     public boolean buyPlot() {
         if(numberOfFruits < plotPrice)
             return false;
@@ -62,20 +52,36 @@ public class Plot {
         return true;
     }
 
-    //Ide lehetne, hogy PlantType típust kap és úgy hív meg egy static fv-t pl. Apple.plant();
+    public void updateGUI() {
+        game.updateFruitCounterLabel();
+    }
+
     public void plantPlant(int row, int col, PlantType plant) {
         switch (plant) {
             case APPLE:
-                array[row][col] = new Apple(); //TODO Implement these!!!!!!!!
+                if(numberOfFruits >= Apple.getPrice()) {
+                    numberOfFruits -= Apple.getPrice();
+                    Apple.updatePrice();
+                    array[row][col] = new Apple(this); //TODO Implement these!!!!!!!!
+                    game.getPlantLabels(row, col).setIcon(Apple.icon);
+                }
+                else
+                    System.out.println("Not enough fruits to buy apple!");
                 break;
+
             case GRAPE:
-                array[row][col] = new Grape();
+                array[row][col] = new Grape(this);
+                System.out.println("Planted grape");
                 break;
+
             case BANANA:
-                array[row][col] = new Banana();
+                array[row][col] = new Banana(this);
+                System.out.println("Planted banana");
                 break;
+
             case PINEAPPLE:
-                array[row][col] = new Pineapple();
+                array[row][col] = new Pineapple(this);
+                System.out.println("Planted pineapple");
                 break;
             default:
                 break;
