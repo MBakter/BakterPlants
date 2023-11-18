@@ -3,10 +3,7 @@ package frontend;
 import gamelogic.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 
 public class GameGUI {
     private JFrame frame;
@@ -19,8 +16,8 @@ public class GameGUI {
 
     private Plot plot;
 
-    private int WIDTH = 1400;
-    private int HEIGHT = 1200;
+    private static int WIDTH = Plot.getCOLS()*200 + 150;
+    private static int HEIGHT = Plot.getROWS()*200 + 75;
 
     public GameGUI() {
         createFrame();        
@@ -62,17 +59,15 @@ public class GameGUI {
         //frame.setLayout(new BorderLayout());
     }
 
-    //Grid paramters: WIDTH: 1400, HEIGHT: 1200. Each grid png is 200*200 
-    //TODO: Lehetne, hogy a plantlabels-t a plot classból hívjuk. Mondjuk a plotban van egy 6*7-es plant és egy 6*7-es plantlabel attribútum
+    //Each grid png is 200*200 
     private void createPlotPanel() {
-        plotPanel = new JPanel(new GridLayout(6, 7));
-        plantLabels = new JLabel[6][7];
-        ImageIcon plantIcon = new ImageIcon("grass.png");
+        plotPanel = new JPanel(new GridLayout(Plot.getROWS(), Plot.getCOLS()));
+        plantLabels = new JLabel[Plot.getROWS()][Plot.getCOLS()];
 
-        for (int row = 0; row < 6; row++) {
-            for (int col = 0; col < 7; col++) {
+        for (int row = 0; row < Plot.getROWS(); row++) {
+            for (int col = 0; col < Plot.getCOLS(); col++) {
                 plantLabels[row][col] = new JLabel();
-                plantLabels[row][col].setIcon(plantIcon);
+                plantLabels[row][col].setIcon(Plot.plotIcon);
                 plantLabels[row][col].setBackground(Color.black);
                 plotPanel.add(plantLabels[row][col]);
             }
@@ -80,8 +75,25 @@ public class GameGUI {
     }
 
     private void createTopPanel() {
-        topPanel = new JPanel();
+        topPanel = new JPanel(new GridLayout(1, 3));
+
+        JMenuBar menuBar = new JMenuBar();
+        JMenu mainMenu = new JMenu("Menu");
+        JMenuItem save = new JMenuItem("Save");
+        JMenuItem load = new JMenuItem("Load");
+        save.addActionListener(e -> {
+                plot.initSave();
+            });
+        load.addActionListener(e -> {
+                plot.initLoad();
+            });
+        mainMenu.add(save);
+        mainMenu.add(load);
+        menuBar.add(mainMenu);
+
         fruitCounterLabel = new JLabel("Fruits: " + plot.getFruits());
+
+        topPanel.add(menuBar);
         topPanel.add(fruitCounterLabel);
     }
 
@@ -103,8 +115,8 @@ public class GameGUI {
     public void increaseParcelLabel() {
 
         //plot.parcels is already increased by one when this is called
-        int currentRow = (int)((plot.getParcels()-1) / 7);
-        int currentCol = (int)(plot.getParcels()-1) % 7;
+        int currentRow = (int)((plot.getParcels()-1) / Plot.getCOLS());
+        int currentCol = (int)(plot.getParcels()-1) % Plot.getCOLS();
 
         JPopupMenu popMenu = new JPopupMenu();
         JMenuItem plantMenu = new JMenu("Plant the seed");
@@ -116,7 +128,17 @@ public class GameGUI {
                 addItemToPlantMenu(plantMenu, pType, currentRow, currentCol);
         }
 
-        popMenu.add(new JMenuItem("Dig up the ground"));
+        JMenuItem infuseMI = new JMenuItem("Infuse it");
+        infuseMI.addActionListener(e->{
+            plot.infusePlant(currentRow, currentCol);
+        });
+        popMenu.add(infuseMI);
+
+        JMenuItem digMI = new JMenuItem("Dig up the ground");
+        digMI.addActionListener(e->{
+            plot.digPlant(currentRow, currentCol);
+        });
+        popMenu.add(digMI);
 
         plantLabels[currentRow][currentCol].addMouseListener(new MouseListener() {
             
@@ -138,14 +160,15 @@ public class GameGUI {
 
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //TODO: Ha van ott plant akkor ne lehessen, plotban getType[i][j]
                 plot.plantPlant(row, col, pType);
-                updateFruitCounterLabel();
             }
             
         });
 
         menu.add(item);
+    }
 
+    public void showMessage(String message) {
+        JOptionPane.showMessageDialog(frame, message);
     }
 }

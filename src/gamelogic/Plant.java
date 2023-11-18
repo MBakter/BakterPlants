@@ -10,7 +10,11 @@ public abstract class Plant {
     public int time;        //In seconds
     protected static int price;
     protected int produceAmount;
-    public static ImageIcon icon;
+    protected int infusionPrice;
+    protected int levelOfPlant;
+    private int maxLevel;
+
+    public ImageIcon icon;
     Plot plot;
     protected Timer timer;
 
@@ -23,14 +27,26 @@ public abstract class Plant {
     Plant(Plot plot) {
         this.plot = plot;
         timer = new Timer();
+        levelOfPlant = 1;
+        maxLevel = 5;
     }
 
+    protected int getMaxLevel() { return maxLevel; }
+    public int getInfusionPrice() { return infusionPrice; }
     protected void produceAmount() {
         plot.IncreaseFruit(produceAmount);
         plot.updateGUI();
     }
 
     protected void startTimer() {
-        timer.schedule(new ProduceFruit(), 0, (long)time*1000);
+        timer.schedule(new ProduceFruit(), (long)time*1000, (long)time*1000);
     }
+
+    public void stopTimer() {
+        timer.cancel();
+    }
+
+    public void upgradePlant() {}
+
+    public ImageIcon getIcon() { return icon; }
 }

@@ -1,26 +1,36 @@
 package gamelogic;
 
+import javax.swing.ImageIcon;
+
 import frontend.GameGUI;
 
 public class Plot {
     private Plant[][] array;
-    private int avaliableParcels;
-    private int numberOfFruits;
+    private int numOfParcels;
+    private int numOfFruits;
     private int applePrice;
     private int plotPrice;
+    private int numOfPlants;
+    private static int ROWS = 3;
+    private static int COLS = 5;
 
+    public static ImageIcon plotIcon = new ImageIcon("grass.png");
     private GameGUI game;
 
     public Plot(GameGUI g) {
         game = g;
-        array = new Plant[7][6];
-        avaliableParcels = 0;
-        numberOfFruits = 0;
+        array = new Plant[ROWS][COLS];
+        numOfParcels = 0;
+        numOfPlants = 0;
+        numOfFruits = 20;
         plotPrice = 0;
     }
 
+    public static int getROWS() {return ROWS;}
+    public static int getCOLS() {return COLS;}
+
     public int getFruits() {
-        return numberOfFruits;
+        return numOfFruits;
     }
 
     public int getApplePrice() {
@@ -32,23 +42,36 @@ public class Plot {
     }
 
     public int getParcels() {
-        return avaliableParcels;
+        return numOfParcels;
     }
 
+    public Plant[][] getarray() {
+        return array;
+    }
+
+    public boolean isPlantInPlot(int row, int col) {
+        return array[row][col] != null;
+    }
     public void IncreaseFruit(int incrementValue) {
-        numberOfFruits += incrementValue;
+        numOfFruits += incrementValue;
+        game.updateFruitCounterLabel();
+    }
+
+    public void decreaseFruit(int decrementValue) {
+        numOfFruits -= decrementValue;
+        game.updateFruitCounterLabel();
     }
 
     public boolean buyPlot() {
-        if(numberOfFruits < plotPrice)
+        if(numOfFruits < plotPrice)
             return false;
 
-        numberOfFruits -= plotPrice;
+        numOfFruits -= plotPrice;
         if(plotPrice == 0)
             plotPrice = 10;
 
         plotPrice *= 2;
-        avaliableParcels++;
+        numOfParcels++;
         return true;
     }
 
@@ -56,17 +79,25 @@ public class Plot {
         game.updateFruitCounterLabel();
     }
 
+    public void updatePlantIcon(int row, int col) {
+        game.getPlantLabels(row, col).setIcon(array[row][col].getIcon());
+    }
+
     public void plantPlant(int row, int col, PlantType plant) {
+        //Ha van már plant akkor nem lehet ültetni
+        if(isPlantInPlot(row, col))
+            return;
         switch (plant) {
             case APPLE:
-                if(numberOfFruits >= Apple.getPrice()) {
-                    numberOfFruits -= Apple.getPrice();
-                    Apple.updatePrice();
-                    array[row][col] = new Apple(this); //TODO Implement these!!!!!!!!
-                    game.getPlantLabels(row, col).setIcon(Apple.icon);
+                if(numOfFruits >= Apple.getPrice() || numOfPlants == 0) {
+                    if(numOfPlants > 0)
+                        decreaseFruit(Apple.getPrice());
+                    array[row][col] = new Apple(this);
+                    numOfPlants++;
+                    updatePlantIcon(row, col);
                 }
                 else
-                    System.out.println("Not enough fruits to buy apple!");
+                    game.showMessage("Not enough fruits for Apple");
                 break;
 
             case GRAPE:
@@ -81,11 +112,36 @@ public class Plot {
 
             case PINEAPPLE:
                 array[row][col] = new Pineapple(this);
-                System.out.println("Planted pineapple");
+                System.out.println("Planted pinaapple");
                 break;
             default:
                 break;
         }
-         
+    }
+
+    public void infusePlant(int row, int col) {
+        if(isPlantInPlot(row, col) && numOfFruits >= array[row][col].infusionPrice){
+            decreaseFruit(array[row][col].infusionPrice);
+            array[row][col].upgradePlant();
+            updatePlantIcon(row, col);
+        }
+    }
+
+    public void digPlant(int row, int col) {
+        if(isPlantInPlot(row, col)){
+            array[row][col].stopTimer();
+            game.getPlantLabels(row, col).setIcon(Plot.plotIcon);
+            array[row][col] = null;
+            numOfPlants--;
+        }
+    }   
+
+    //Initiates saving sequence
+    public void initSave() {
+
+    }
+
+    public void initLoad() {
+        
     }
 }

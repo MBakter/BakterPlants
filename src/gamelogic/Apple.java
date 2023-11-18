@@ -5,14 +5,15 @@ import javax.swing.ImageIcon;
 public class Apple extends Plant {
     static {
         type = PlantType.APPLE;
-        price = 0;
-        icon = new ImageIcon("appletree.png");
+        price = 10; 
     }
     
     Apple(Plot plot) {
         super(plot);
-        super.time = 1;
+        super.time = 5;
         super.produceAmount = 1;
+        super.infusionPrice = 30;
+        icon = new ImageIcon("appletree.png");
         super.startTimer();
     }
 
@@ -20,10 +21,15 @@ public class Apple extends Plant {
         return price;
     }
 
-    public static void updatePrice() {
-        if(price == 0)
-            price = 1;
-        price *= 1.5; //Mindig a másfélszeresébe kerül TODO: Kitalálni egy jobb "emelőfüggvényt" az 'y(x) = 1.5x' -nél
+    @Override
+    public void upgradePlant() {
+        if(levelOfPlant >= getMaxLevel())
+            return;
+
+        produceAmount *= 2; //TODO: Ennél jobbat
+        infusionPrice *= 2;
+        levelOfPlant++;
+        icon = new ImageIcon("appletree_lvl" + levelOfPlant + ".png");
     }
     
 }
