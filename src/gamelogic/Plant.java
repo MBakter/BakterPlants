@@ -1,11 +1,12 @@
 package gamelogic;
 
+import java.io.Serializable;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.ImageIcon;
 
-public abstract class Plant {
+public abstract class Plant implements Serializable{
     public static PlantType type;
     public int time;        //In seconds
     protected static int price;
@@ -16,7 +17,7 @@ public abstract class Plant {
 
     public ImageIcon icon;
     Plot plot;
-    protected Timer timer;
+    protected transient Timer timer;
 
     class ProduceFruit extends TimerTask {
         public void run() {
@@ -49,4 +50,17 @@ public abstract class Plant {
     public void upgradePlant() {}
 
     public ImageIcon getIcon() { return icon; }
+
+    public void copyData(Plant input) {
+        this.icon = input.icon;
+                                                    //static tagokat is valahogy át kéne másolni
+        this.infusionPrice = input.infusionPrice;
+        this.levelOfPlant = input.levelOfPlant;
+        this.maxLevel = input.maxLevel;
+        this.produceAmount = input.produceAmount;
+        this.plot = input.plot;                     //EZ lehet, hogy veszélyes
+        this.time = input.time;
+        timer = new Timer();
+        startTimer();
+    }
 }

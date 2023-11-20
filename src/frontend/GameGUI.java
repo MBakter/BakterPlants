@@ -4,8 +4,9 @@ import gamelogic.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.Serializable;
 
-public class GameGUI {
+public class GameGUI implements Serializable {
     private JFrame frame;
     private JPanel plotPanel;
     private JPanel topPanel;
@@ -16,8 +17,8 @@ public class GameGUI {
 
     private Plot plot;
 
-    private static int WIDTH = Plot.getCOLS()*200 + 150;
-    private static int HEIGHT = Plot.getROWS()*200 + 75;
+    private static int WIDTH = Plot.getCOLS()*301 + 165;
+    private static int HEIGHT = Plot.getROWS()*300 + 65;
 
     public GameGUI() {
         createFrame();        
@@ -45,6 +46,9 @@ public class GameGUI {
     public void addToPlotPanel(Component component) {
         plotPanel.add(component);
     }
+    public JFrame getFrame() {
+        return frame;
+    }
     
     //If we need to modify the plantlabel in x,y
     public JLabel getPlantLabels(int row, int col) {
@@ -55,13 +59,13 @@ public class GameGUI {
         frame = new JFrame("BakterPlants");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(WIDTH, HEIGHT);
-        frame.setResizable(true);
+        frame.setResizable(false);
         //frame.setLayout(new BorderLayout());
     }
-
-    //Each grid png is 200*200 
+ 
     private void createPlotPanel() {
         plotPanel = new JPanel(new GridLayout(Plot.getROWS(), Plot.getCOLS()));
+        plotPanel.setBackground(new Color(77, 88, 99));
         plantLabels = new JLabel[Plot.getROWS()][Plot.getCOLS()];
 
         for (int row = 0; row < Plot.getROWS(); row++) {
@@ -99,14 +103,16 @@ public class GameGUI {
 
     private void createMarketPanel() {
         marketPanel = new JPanel(new GridLayout(3, 1));
-        buyPlotButton = new JButton("Extend Plot: " + plot.getPlotPrice());
+        buyPlotButton = new JButton("Buy Plot: " + plot.getPlotPrice());
 
         //If a new plot is bought, 
         buyPlotButton.addActionListener(e -> { 
-            if(plot.buyPlot()) {
+            if(plot.getParcels() < Plot.getROWS()*Plot.getCOLS() && plot.buyPlot()) {
                 buyPlotButton.setText("Buy Plot: " + plot.getPlotPrice());
                 updateFruitCounterLabel(); //Update number of fruits
                 increaseParcelLabel();
+                if(plot.getParcels() >= Plot.getCOLS()*Plot.getROWS())
+                    marketPanel.remove(buyPlotButton); //Ha megvan az összes plot akkor ne legyen ott a buyplots gomb
             }
         });
         marketPanel.add(buyPlotButton);
@@ -166,6 +172,22 @@ public class GameGUI {
         });
 
         menu.add(item);
+    }
+
+    //Update every visual element
+    public void updateState() {
+        //TODO: implement this
+        updateFruitCounterLabel();
+
+    }
+    
+    public void initFromLoad(Plot input) {
+        for (int i = 0; i < Plot.getROWS(); i++) {
+            for (int j = 0; j < Plot.getCOLS(); j++) {
+                //if(input.isPlantInPlot(i, j))
+                    //input.getarray()[i][j]
+            }
+        }
     }
 
     public void showMessage(String message) {

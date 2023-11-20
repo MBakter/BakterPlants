@@ -1,10 +1,13 @@
 package gamelogic;
 
+import java.io.*;
+
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 
 import frontend.GameGUI;
 
-public class Plot {
+public class Plot implements Serializable{
     private Plant[][] array;
     private int numOfParcels;
     private int numOfFruits;
@@ -14,15 +17,15 @@ public class Plot {
     private static int ROWS = 3;
     private static int COLS = 5;
 
-    public static ImageIcon plotIcon = new ImageIcon("grass.png");
-    private GameGUI game;
+    public static ImageIcon plotIcon = new ImageIcon("Graphics/Soil.png");
+    private transient GameGUI game;
 
     public Plot(GameGUI g) {
         game = g;
         array = new Plant[ROWS][COLS];
         numOfParcels = 0;
         numOfPlants = 0;
-        numOfFruits = 20;
+        numOfFruits = 2000000000;
         plotPrice = 0;
     }
 
@@ -136,12 +139,83 @@ public class Plot {
         }
     }   
 
+    private void stopTimers() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if(array[i][j] == null)
+                    break;
+                array[i][j].stopTimer();
+            }
+        }
+    }
+    private void startTimers() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if(array[i][j] == null)
+                    break;
+                array[i][j].startTimer();
+            }
+        }
+    }
+
     //Initiates saving sequence
     public void initSave() {
+        //stopTimers();
 
+        File saveLocation = new File(System.getProperty("user.dir").toString() + File.separator + "saves");
+        if(!saveLocation.exists()) 
+            saveLocation.mkdir();
+
+        JFileChooser chooser = new JFileChooser(saveLocation);
+
+        if(chooser.showSaveDialog(game.getFrame()) == JFileChooser.APPROVE_OPTION) {            
+            try {
+                FileOutputStream fos = new FileOutputStream(chooser.getSelectedFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(this);
+                oos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //startTimers();
     }
 
     public void initLoad() {
-        
+        File saveLocation = new File(System.getProperty("user.dir").toString() + File.separator + "saves");
+        if(!saveLocation.exists()){
+            game.showMessage("There is no file to load");
+            return; //There is nothing to load
+        }
+        JFileChooser chooser = new JFileChooser(saveLocation);
+
+        if(chooser.showOpenDialog(game.getFrame()) == JFileChooser.APPROVE_OPTION) {            
+            try {
+                FileInputStream fis = new FileInputStream(chooser.getSelectedFile());
+                ObjectInputStream oos = new ObjectInputStream(fis);
+                Plot inputPlot = (Plot) oos.readObject();
+                oos.close();
+                copyDataToThis(inputPlot);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            game.updateState();
+        }
+    }
+
+    private void copyDataToThis(Plot input) {
+        this.applePrice = input.applePrice;
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if(this.array[i][j] == null)
+                    break;
+                this.array[i][j].copyData(input.array[i][j]);
+            }
+        }
+        this.numOfFruits = input.numOfFruits;
+        this.numOfParcels = input.numOfParcels;
+        this.numOfPlants = input.numOfPlants;
+        this.plotPrice = input.plotPrice;
+        this.game.initFromLoad(input);
     }
 }
