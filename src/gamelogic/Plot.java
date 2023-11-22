@@ -8,6 +8,7 @@ import javax.swing.JFileChooser;
 import frontend.GameGUI;
 
 public class Plot implements Serializable{
+    private static final long serialVersionUID = 4443892591982365865L;
     private Plant[][] array;
     private int numOfParcels;
     private int numOfFruits;
@@ -17,7 +18,8 @@ public class Plot implements Serializable{
     private static int ROWS = 3;
     private static int COLS = 5;
 
-    public static ImageIcon plotIcon = new ImageIcon("Graphics/Soil.png");
+    public static ImageIcon plotIcon = new ImageIcon("Graphics" + File.separator + "Soil.png");
+    public static ImageIcon occupiedPlotIcon = new ImageIcon("Graphics" + File.separator + "Grass.png");
     private transient GameGUI game;
 
     public Plot(GameGUI g) {
@@ -122,6 +124,13 @@ public class Plot implements Serializable{
         }
     }
 
+    public void fertilizePlant(int row, int col) {
+        if(isPlantInPlot(row, col) && numOfFruits >= array[row][col].fertilizerPrice){
+            decreaseFruit(array[row][col].fertilizerPrice);
+            array[row][col].speedUpPlant();
+        }
+    }
+
     public void infusePlant(int row, int col) {
         if(isPlantInPlot(row, col) && numOfFruits >= array[row][col].infusionPrice){
             decreaseFruit(array[row][col].infusionPrice);
@@ -133,7 +142,7 @@ public class Plot implements Serializable{
     public void digPlant(int row, int col) {
         if(isPlantInPlot(row, col)){
             array[row][col].stopTimer();
-            game.getPlantLabels(row, col).setIcon(Plot.plotIcon);
+            game.getPlantLabels(row, col).setIcon(Plot.occupiedPlotIcon);
             array[row][col] = null;
             numOfPlants--;
         }
@@ -172,6 +181,7 @@ public class Plot implements Serializable{
             try {
                 FileOutputStream fos = new FileOutputStream(chooser.getSelectedFile());
                 ObjectOutputStream oos = new ObjectOutputStream(fos);
+                saveElapsedTime();
                 oos.writeObject(this);
                 oos.close();
             } catch (IOException e) {
@@ -179,6 +189,13 @@ public class Plot implements Serializable{
             }
         }
         //startTimers();
+    }
+
+    public void saveElapsedTime() {
+        for (int i = 0; i < ROWS; i++) 
+            for (int j = 0; j < COLS; j++) 
+                if(isPlantInPlot(i, j))
+                    array[i][j].setTimeAtSave();
     }
 
     public void initLoad() {
@@ -203,19 +220,40 @@ public class Plot implements Serializable{
         }
     }
 
+    //TODO: Timer visszaállítása arra ami volt mentéskor
+    public void loadPlants(int row, int col, PlantType plant, long timeAtSave) {
+        switch (plant) {
+            case APPLE:
+                array[row][col] = new Apple(this, timeAtSave);
+                updatePlantIcon(row, col);
+                break;
+
+            case GRAPE:
+                array[row][col] = new Grape(this);
+                System.out.println("Planted grape");
+                break;
+
+            case BANANA:
+                array[row][col] = new Banana(this);
+                System.out.println("Planted banana");
+                break;
+
+            case PINEAPPLE:
+                array[row][col] = new Pineapple(this);
+                System.out.println("Planted pinaapple");
+                break;
+            default:
+                break;
+        }
+    }
+
     private void copyDataToThis(Plot input) {
         this.applePrice = input.applePrice;
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                if(this.array[i][j] == null)
-                    break;
-                this.array[i][j].copyData(input.array[i][j]);
-            }
-        }
         this.numOfFruits = input.numOfFruits;
         this.numOfParcels = input.numOfParcels;
         this.numOfPlants = input.numOfPlants;
         this.plotPrice = input.plotPrice;
         this.game.initFromLoad(input);
+
     }
 }

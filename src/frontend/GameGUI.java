@@ -7,6 +7,7 @@ import java.awt.event.*;
 import java.io.Serializable;
 
 public class GameGUI implements Serializable {
+    private static final long serialVersionUID = 2225901656906345936L;
     private JFrame frame;
     private JPanel plotPanel;
     private JPanel topPanel;
@@ -17,7 +18,7 @@ public class GameGUI implements Serializable {
 
     private Plot plot;
 
-    private static int WIDTH = Plot.getCOLS()*301 + 165;
+    private static int WIDTH = Plot.getCOLS()*301 + 105;
     private static int HEIGHT = Plot.getROWS()*300 + 65;
 
     public GameGUI() {
@@ -38,6 +39,9 @@ public class GameGUI implements Serializable {
 
     public void updateFruitCounterLabel() {
         fruitCounterLabel.setText("Fruits: " + plot.getFruits());
+    }
+    public void updateBuyPlotButtonText() {
+        buyPlotButton.setText("Buy Plot: " + plot.getPlotPrice());
     }
 
     public void addToFrame(Component component) {
@@ -108,9 +112,9 @@ public class GameGUI implements Serializable {
         //If a new plot is bought, 
         buyPlotButton.addActionListener(e -> { 
             if(plot.getParcels() < Plot.getROWS()*Plot.getCOLS() && plot.buyPlot()) {
-                buyPlotButton.setText("Buy Plot: " + plot.getPlotPrice());
+                updateBuyPlotButtonText();
                 updateFruitCounterLabel(); //Update number of fruits
-                increaseParcelLabel();
+                increaseParcelLabel((int)((plot.getParcels()-1) / Plot.getCOLS()), (int)(plot.getParcels()-1) % Plot.getCOLS());
                 if(plot.getParcels() >= Plot.getCOLS()*Plot.getROWS())
                     marketPanel.remove(buyPlotButton); //Ha megvan az összes plot akkor ne legyen ott a buyplots gomb
             }
@@ -118,11 +122,10 @@ public class GameGUI implements Serializable {
         marketPanel.add(buyPlotButton);
     }
 
-    public void increaseParcelLabel() {
+    public void increaseParcelLabel(int currentRow, int currentCol) {
 
-        //plot.parcels is already increased by one when this is called
-        int currentRow = (int)((plot.getParcels()-1) / Plot.getCOLS());
-        int currentCol = (int)(plot.getParcels()-1) % Plot.getCOLS();
+        //Change texture of the plot to grass
+        plantLabels[currentRow][currentCol].setIcon(Plot.occupiedPlotIcon);
 
         JPopupMenu popMenu = new JPopupMenu();
         JMenuItem plantMenu = new JMenu("Plant the seed");
@@ -133,6 +136,12 @@ public class GameGUI implements Serializable {
             if(pType != PlantType.NONE)
                 addItemToPlantMenu(plantMenu, pType, currentRow, currentCol);
         }
+
+        JMenuItem fertilizeMI = new JMenuItem("Fertilize it");
+        fertilizeMI.addActionListener(e->{
+            plot.fertilizePlant(currentRow, currentCol);
+        });
+        popMenu.add(fertilizeMI);
 
         JMenuItem infuseMI = new JMenuItem("Infuse it");
         infuseMI.addActionListener(e->{
@@ -167,12 +176,18 @@ public class GameGUI implements Serializable {
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 plot.plantPlant(row, col, pType);
-            }
-            
+                //createProgressBar(row, col);
+            }  
         });
 
         menu.add(item);
     }
+
+    /* public void createProgressBar(int row, int col) {
+        JProgressBar bar = new JProgressBar(0, 100);
+        Timer t = new Timer(col, null)
+        plantLabels[row][col].add(bar);
+    } */
 
     //Update every visual element
     public void updateState() {
@@ -182,12 +197,20 @@ public class GameGUI implements Serializable {
     }
     
     public void initFromLoad(Plot input) {
-        for (int i = 0; i < Plot.getROWS(); i++) {
-            for (int j = 0; j < Plot.getCOLS(); j++) {
-                //if(input.isPlantInPlot(i, j))
-                    //input.getarray()[i][j]
-            }
+        //____Set plots____
+        updateBuyPlotButtonText();
+        updateFruitCounterLabel();
+        for (int i = 1; i <= input.getParcels(); i++) {
+            increaseParcelLabel((int)((i-1) / Plot.getCOLS()), (int)(i-1) % Plot.getCOLS());
         }
+
+        //____Set plants___
+         for (int i = 0; i < Plot.getROWS(); i++) {
+            for (int j = 0; j < Plot.getCOLS(); j++) {
+                if(input.isPlantInPlot(i, j))
+                    plot.loadPlants(i, j, input.getarray()[i][j].getType(), input.getarray()[i][j].getTimeAtSave());
+            }
+        }  
     }
 
     public void showMessage(String message) {
