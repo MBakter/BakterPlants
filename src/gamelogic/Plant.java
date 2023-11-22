@@ -18,12 +18,12 @@ public abstract class Plant implements Serializable{
     private int maxLevel;
 
     public long time;        //In millisec
-    public static long minTime = 1000; //In milliseconds
+    public static long minTime = 500; //In milliseconds
     protected long timerDelay;
     protected long timeOfStart;
     private long timeAtSave;
 
-    public ImageIcon icon;
+    public static ImageIcon icon;
     Plot plot;
     protected transient Timer timer;
 
@@ -41,13 +41,20 @@ public abstract class Plant implements Serializable{
         maxLevel = 5;
     }
 
+    Plant(Plot plot, Plant copy) {
+        this.plot = plot;
+        timer = new Timer();
+        levelOfPlant = copy.levelOfPlant;
+        maxLevel = copy.maxLevel;
+    }
+
     public PlantType getType() { return type; }
     protected int getMaxLevel() { return maxLevel; }
     public static int getPrice() { return price; }
     public int getInfusionPrice() { return infusionPrice; }
     public ImageIcon getIcon() { return icon; }
     public void setTimeAtSave() { timeAtSave = getElapsedTime(); }
-    public long getTimeAtSave() { System.out.println(timeAtSave); return timeAtSave; }
+    public long getTimeAtSave() { return timeAtSave; }
     
 
     protected void produceAmount() {
@@ -66,17 +73,16 @@ public abstract class Plant implements Serializable{
 
     //In millisec
     public long getElapsedTime() {
-        System.out.println(System.currentTimeMillis() - timeOfStart);
         return System.currentTimeMillis() - timeOfStart;
     }
 
     public void progressBar() {
-        
+
     }
 
     public void upgradePlant() {}
 
-    public void speedUpPlant() {}
+    public boolean speedUpPlant() { return false; }
 
     
 }

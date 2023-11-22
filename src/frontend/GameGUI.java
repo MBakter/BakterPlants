@@ -4,6 +4,7 @@ import gamelogic.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.Serializable;
 
 public class GameGUI implements Serializable {
@@ -65,6 +66,7 @@ public class GameGUI implements Serializable {
         frame.setSize(WIDTH, HEIGHT);
         frame.setResizable(false);
         //frame.setLayout(new BorderLayout());
+        frame.setIconImage(new ImageIcon("Graphics" + File.separator + "Apple.png").getImage());
     }
  
     private void createPlotPanel() {
@@ -106,7 +108,7 @@ public class GameGUI implements Serializable {
     }
 
     private void createMarketPanel() {
-        marketPanel = new JPanel(new GridLayout(3, 1));
+        marketPanel = new JPanel(new GridLayout(9, 1));
         buyPlotButton = new JButton("Buy Plot: " + plot.getPlotPrice());
 
         //If a new plot is bought, 
@@ -171,7 +173,7 @@ public class GameGUI implements Serializable {
     }
 
     private void addItemToPlantMenu(JMenuItem menu, PlantType pType, int row, int col) {
-        JMenuItem item = new JMenuItem(PlantType.convertToString(pType));
+        JMenuItem item = new JMenuItem(PlantType.convertToString(pType) + ":  " + pType.getPrice() + ".-");
 
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -208,7 +210,7 @@ public class GameGUI implements Serializable {
          for (int i = 0; i < Plot.getROWS(); i++) {
             for (int j = 0; j < Plot.getCOLS(); j++) {
                 if(input.isPlantInPlot(i, j))
-                    plot.loadPlants(i, j, input.getarray()[i][j].getType(), input.getarray()[i][j].getTimeAtSave());
+                    plot.loadPlants(i, j, input);
             }
         }  
     }

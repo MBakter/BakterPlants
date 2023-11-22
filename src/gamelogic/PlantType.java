@@ -1,8 +1,16 @@
 package gamelogic;
 
 public enum PlantType {
-    NONE, APPLE, GRAPE, BANANA, PINEAPPLE;
+    NONE, APPLE(10), GRAPE(30), BANANA(100), PINEAPPLE(300);
+    private int price;
 
+    PlantType() {
+        price = 0;
+    }
+    PlantType(int p) {
+        price = p;
+    }
+    public int getPrice() { return price; }
     public static PlantType convertToPlantType(String name) {
         switch(name) {
             case "apple":

@@ -6,7 +6,8 @@ import javax.swing.ImageIcon;
 
 public class Apple extends Plant {
     static {
-        price = 10; 
+        price = PlantType.APPLE.getPrice(); 
+        icon = new ImageIcon("Graphics" + File.separator + "apple.png");
     }
     
     Apple(Plot plot) {
@@ -17,19 +18,18 @@ public class Apple extends Plant {
         super.produceAmount = 1;
         super.infusionPrice = 30;
         super.fertilizerPrice = 20;
-        icon = new ImageIcon("Graphics" + File.separator + "apple.png");
         super.startTimer();
     }
 
-    Apple(Plot plot, long delay) {
+    //To be used when loading a save
+    Apple(Plot plot, Plant input) {
         super(plot);
         type = PlantType.APPLE;
-        super.time = 5 * 1000;
-        super.timerDelay = delay;
-        super.produceAmount = 1;
-        super.infusionPrice = 30;
-        super.fertilizerPrice = 20;
-        icon = new ImageIcon("Graphics" + File.separator + "apple.png");
+        super.time = input.time;
+        super.timerDelay = input.getTimeAtSave();
+        super.produceAmount = input.produceAmount;
+        super.infusionPrice = input.infusionPrice;
+        super.fertilizerPrice = input.fertilizerPrice;
         super.startTimer();
     }
 
@@ -41,18 +41,24 @@ public class Apple extends Plant {
         produceAmount *= 2; //TODO: Ennél jobbat
         infusionPrice *= 2;
         levelOfPlant++;
-        icon = new ImageIcon("Apple_lvl" + levelOfPlant + ".png");
+        //icon = new ImageIcon("Apple_lvl" + levelOfPlant + ".png");
     }
     
     @Override
-    public void speedUpPlant() {
-        if((super.time /= 2) <= minTime)
-            return;
-
+    public boolean speedUpPlant() {
+        if((super.time / 2) <= minTime) {
+            if(super.time != minTime) {
+                super.time = minTime;
+                return true;
+            }
+            plot.game.showMessage("Plant is very fertile!");
+            return false;
+        }
         super.time /= 2; //TODO: Ennél jobbat
         fertilizerPrice *= 4;
-
-        timer.schedule(new ProduceFruit(), time);
+        long delay = getElapsedTime();
+        timer.schedule(new ProduceFruit(), delay, time);
         timeOfStart = System.currentTimeMillis();
+        return true;
     }
 }

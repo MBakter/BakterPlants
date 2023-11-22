@@ -20,7 +20,7 @@ public class Plot implements Serializable{
 
     public static ImageIcon plotIcon = new ImageIcon("Graphics" + File.separator + "Soil.png");
     public static ImageIcon occupiedPlotIcon = new ImageIcon("Graphics" + File.separator + "Grass.png");
-    private transient GameGUI game;
+    public transient GameGUI game;
 
     public Plot(GameGUI g) {
         game = g;
@@ -125,9 +125,8 @@ public class Plot implements Serializable{
     }
 
     public void fertilizePlant(int row, int col) {
-        if(isPlantInPlot(row, col) && numOfFruits >= array[row][col].fertilizerPrice){
+        if(isPlantInPlot(row, col) && numOfFruits >= array[row][col].fertilizerPrice && array[row][col].speedUpPlant()){
             decreaseFruit(array[row][col].fertilizerPrice);
-            array[row][col].speedUpPlant();
         }
     }
 
@@ -220,11 +219,10 @@ public class Plot implements Serializable{
         }
     }
 
-    //TODO: Timer visszaállítása arra ami volt mentéskor
-    public void loadPlants(int row, int col, PlantType plant, long timeAtSave) {
-        switch (plant) {
+    public void loadPlants(int row, int col, Plot input) {
+        switch (input.getarray()[row][col].getType()) {
             case APPLE:
-                array[row][col] = new Apple(this, timeAtSave);
+                array[row][col] = new Apple(this, input.getarray()[row][col]);
                 updatePlantIcon(row, col);
                 break;
 
@@ -254,6 +252,5 @@ public class Plot implements Serializable{
         this.numOfPlants = input.numOfPlants;
         this.plotPrice = input.plotPrice;
         this.game.initFromLoad(input);
-
     }
 }
