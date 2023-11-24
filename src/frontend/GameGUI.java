@@ -2,10 +2,14 @@ package frontend;
 
 import gamelogic.*;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class GameGUI implements Serializable {
     private static final long serialVersionUID = 2225901656906345936L;
@@ -157,6 +161,12 @@ public class GameGUI implements Serializable {
         });
         popMenu.add(digMI);
 
+        JMenuItem propertiesMI = new JMenuItem("Properties");
+        propertiesMI.addActionListener(e -> {
+            createPropertiesTable(currentRow, currentCol);
+        });
+        popMenu.add(propertiesMI);
+
         plantLabels[currentRow][currentCol].addMouseListener(new MouseListener() {
             
             public void mouseClicked(MouseEvent e) {
@@ -172,7 +182,7 @@ public class GameGUI implements Serializable {
 
     }
 
-    private void addItemToPlantMenu(JMenuItem menu, PlantType pType, int row, int col) {
+    public void addItemToPlantMenu(JMenuItem menu, PlantType pType, int row, int col) {
         JMenuItem item = new JMenuItem(PlantType.convertToString(pType) + ":  " + pType.getPrice() + ".-");
 
         item.addActionListener(new ActionListener() {
@@ -191,11 +201,70 @@ public class GameGUI implements Serializable {
         plantLabels[row][col].add(bar);
     } */
 
-    //Update every visual element
-    public void updateState() {
-        //TODO: implement this
-        updateFruitCounterLabel();
+    public void fruitAnimation(int row, int col) {
+        JLabel floatingLabel = new JLabel(new ImageIcon("Graphics" + File.separator + "Fruit.png"));
+        plantLabels[row][col].add(floatingLabel, BorderLayout.CENTER);
+        
+        floatingLabel.setVisible(false);
 
+        Timer timer = new Timer(2000, new ActionListener() {
+            int elapsedTime = 0;
+            public void actionPerformed(ActionEvent e) {
+                if (elapsedTime < 2000) {
+                    float percentComplete = (float) elapsedTime / 2000;
+                    int newY = (int) (200 * (1 - percentComplete));
+                    floatingLabel.setLocation(floatingLabel.getX(), newY);
+                    floatingLabel.setVisible(true);
+                    elapsedTime += 100;
+                } else {
+                    ((Timer) e.getSource()).stop();
+                    floatingLabel.setVisible(false);
+                }
+            }
+        });
+        timer.start();
+
+    }
+
+    public void createPropertiesTable(int row, int col) {
+        if(!plot.isPlantInPlot(row, col)) {
+            showMessage("There are no known properies of grass");
+            return;
+        }
+
+        Map<String, String> propList = new LinkedHashMap<>();
+        plot.fillPropList(propList, row, col);
+
+        DefaultTableModel model = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        model.addColumn("Name of the property");
+        model.addColumn("Value");
+
+        for (Map.Entry<String, String> entry : propList.entrySet()) {
+            model.addRow(new String[]{entry.getKey(), entry.getValue()});
+        }
+
+        JTable table = new JTable(model);
+        
+        table.getTableHeader().setReorderingAllowed(false);
+
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Properties");
+        dialog.setLayout(new BorderLayout());
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.add(new JScrollPane(table));
+
+        dialog.setSize(new Dimension(300, 180));
+        dialog.setLocationRelativeTo(null); // Center the dialog
+        dialog.setModal(true);
+        dialog.setResizable(false);
+        dialog.setVisible(true);
+        
     }
     
     public void initFromLoad(Plot input) {

@@ -1,6 +1,7 @@
 package gamelogic;
 
 import java.io.*;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -27,36 +28,23 @@ public class Plot implements Serializable{
         array = new Plant[ROWS][COLS];
         numOfParcels = 0;
         numOfPlants = 0;
-        numOfFruits = 300;
+        numOfFruits = 300000;
         plotPrice = 0;
     }
 
     public static int getROWS() {return ROWS;}
     public static int getCOLS() {return COLS;}
+    public int getFruits() { return numOfFruits; }
+    public int getApplePrice() { return applePrice; }
+    public int getPlotPrice() { return plotPrice; }
+    public int getParcels() { return numOfParcels; }
+    public Plant[][] getarray() { return array; }
+    public int getPlants() { return numOfPlants; }
 
-    public int getFruits() {
-        return numOfFruits;
+    public boolean isPlantInPlot(int row, int col) { 
+        return array[row][col] != null; 
     }
 
-    public int getApplePrice() {
-        return applePrice;
-    }
-
-    public int getPlotPrice() {
-        return plotPrice;
-    }
-
-    public int getParcels() {
-        return numOfParcels;
-    }
-
-    public Plant[][] getarray() {
-        return array;
-    }
-
-    public boolean isPlantInPlot(int row, int col) {
-        return array[row][col] != null;
-    }
     public void IncreaseFruit(int incrementValue) {
         numOfFruits += incrementValue;
         game.updateFruitCounterLabel();
@@ -68,8 +56,10 @@ public class Plot implements Serializable{
     }
 
     public boolean buyPlot() {
-        if(numOfFruits < plotPrice)
+        if(numOfFruits < plotPrice){
+            game.showMessage("Not enough fruits to buy plot!");
             return false;
+        }
 
         numOfFruits -= plotPrice;
         if(plotPrice == 0)
@@ -169,24 +159,16 @@ public class Plot implements Serializable{
         }
     }   
 
-    /* private void stopTimers() {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                if(array[i][j] == null)
-                    break;
-                array[i][j].stopTimer();
-            }
-        }
+    public void fillPropList(Map<String, String> props, int row, int col) {
+        array[row][col].getProperties(props);
+        /* props.put("Plant", PlantType.convertToString(array[row][col].getType()));
+        props.put("Level", Integer.toString(array[row][col].getLevel()));
+        props.put("Produce Amount", Integer.toString(array[row][col].produceAmount) + " fruits");
+        props.put("Time to produce fruit", Long.toString(array[row][col].time/1000) + " sec");
+        props.put("Price", Integer.toString(array[row][col].price) + " fruits");
+        props.put("Infusion Price", Integer.toString(array[row][col].infusionPrice) + " fruits");
+        props.put("Fertilizer Price", Integer.toString(array[row][col].fertilizerPrice) + " fruits"); */
     }
-    private void startTimers() {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                if(array[i][j] == null)
-                    break;
-                array[i][j].startTimer();
-            }
-        }
-    } */
 
     //Initiates saving sequence
     public void initSave() {
@@ -237,7 +219,7 @@ public class Plot implements Serializable{
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            game.updateState();
+            updateGUI();
         }
     }
 

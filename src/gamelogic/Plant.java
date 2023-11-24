@@ -1,6 +1,7 @@
 package gamelogic;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -31,7 +32,7 @@ public abstract class Plant implements Serializable{
         public void run() {
             produceAmount();
             timeOfStart = System.currentTimeMillis();
-
+            //lot.game.fruitAnimation(0,0);
         }
     }
 
@@ -66,10 +67,9 @@ public abstract class Plant implements Serializable{
         startTimer();
     }
 
-    
-
     public PlantType getType() { return type; }
     protected int getMaxLevel() { return maxLevel; }
+    public int getLevel() { return levelOfPlant; }
     public int getPrice() { return price; }
     public int getInfusionPrice() { return infusionPrice; }
     public int getFertilizerPrice() { return fertilizerPrice; }
@@ -129,5 +129,13 @@ public abstract class Plant implements Serializable{
         return true;
     }
 
-    
+    public void getProperties(Map<String, String> props) {
+        props.put("Plant", PlantType.convertToString(type));
+        props.put("Level", Integer.toString(levelOfPlant));
+        props.put("Produce Amount", Integer.toString(produceAmount) + " fruits");
+        props.put("Time to produce fruit", Long.toString(time/1000) + " sec");
+        props.put("Price", Integer.toString(price) + " fruits");
+        props.put("Infusion Price", Integer.toString(infusionPrice) + " fruits");
+        props.put("Fertilizer Price", Integer.toString(fertilizerPrice) + " fruits");
+    }    
 }
