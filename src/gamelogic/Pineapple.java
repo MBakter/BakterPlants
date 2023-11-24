@@ -20,16 +20,7 @@ public class Pineapple extends Plant {
 
     //To be used when loading a save
     Pineapple(Plot plot, Plant input) {
-        super(plot);
-        type = input.getType();
-        price = input.price; 
-        icon = input.icon;
-        super.time = input.time;
-        super.timerDelay = input.getTimeAtSave();
-        super.produceAmount = input.produceAmount;
-        super.infusionPrice = input.infusionPrice;
-        super.fertilizerPrice = input.fertilizerPrice;
-        super.startTimer();
+        super(plot, input);
     }
     
 }
