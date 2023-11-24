@@ -27,7 +27,7 @@ public class Plot implements Serializable{
         array = new Plant[ROWS][COLS];
         numOfParcels = 0;
         numOfPlants = 0;
-        numOfFruits = 1000000;
+        numOfFruits = 300;
         plotPrice = 0;
     }
 
@@ -249,18 +249,18 @@ public class Plot implements Serializable{
                 break;
 
             case GRAPE:
-                array[row][col] = new Grape(this);
-                System.out.println("Planted grape");
+                array[row][col] = new Grape(this, input.getarray()[row][col]);
+                updatePlantIcon(row, col);
                 break;
 
             case BANANA:
-                array[row][col] = new Banana(this);
-                System.out.println("Planted banana");
+                array[row][col] = new Banana(this, input.getarray()[row][col]);
+                updatePlantIcon(row, col);
                 break;
 
             case PINEAPPLE:
-                array[row][col] = new Pineapple(this);
-                System.out.println("Planted pinaapple");
+                array[row][col] = new Pineapple(this, input.getarray()[row][col]);
+                updatePlantIcon(row, col);
                 break;
             default:
                 break;

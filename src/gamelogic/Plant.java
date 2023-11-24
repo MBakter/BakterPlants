@@ -31,7 +31,7 @@ public abstract class Plant implements Serializable{
         public void run() {
             produceAmount();
             timeOfStart = System.currentTimeMillis();
-            
+
         }
     }
 
@@ -42,11 +42,28 @@ public abstract class Plant implements Serializable{
         maxLevel = 5;
     }
 
-    Plant(Plot plot, Plant copy) {
+    /* Plant(Plot plot, Plant copy) {
         this.plot = plot;
         timer = new Timer();
         levelOfPlant = copy.levelOfPlant;
         maxLevel = copy.maxLevel;
+    } */
+
+    //To be used when loading a save
+    Plant(Plot plot, Plant input) {
+        this.plot = plot;
+        timer = new Timer();
+        levelOfPlant = input.levelOfPlant;
+        maxLevel = input.maxLevel;
+        type = input.getType();
+        price = input.price; 
+        icon = input.icon;
+        time = input.time;
+        timerDelay = input.getTimeAtSave();
+        produceAmount = input.produceAmount;
+        infusionPrice = input.infusionPrice;
+        fertilizerPrice = input.fertilizerPrice;
+        startTimer();
     }
 
     

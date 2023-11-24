@@ -22,6 +22,8 @@ public class Banana extends Plant {
     Banana(Plot plot, Plant input) {
         super(plot);
         type = input.getType();
+        price = input.price; 
+        icon = input.icon;
         super.time = input.time;
         super.timerDelay = input.getTimeAtSave();
         super.produceAmount = input.produceAmount;
