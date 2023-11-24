@@ -205,14 +205,6 @@ public class GameGUI implements Serializable {
         for (int i = 1; i <= input.getParcels(); i++) {
             increaseParcelLabel((int)((i-1) / Plot.getCOLS()), (int)(i-1) % Plot.getCOLS());
         }
-
-        //____Set plants___
-         for (int i = 0; i < Plot.getROWS(); i++) {
-            for (int j = 0; j < Plot.getCOLS(); j++) {
-                if(input.isPlantInPlot(i, j))
-                    plot.loadPlants(i, j, input);
-            }
-        }  
     }
 
     public void showMessage(String message) {

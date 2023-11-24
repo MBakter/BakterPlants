@@ -1,7 +1,7 @@
 package gamelogic;
 
 public enum PlantType {
-    NONE, APPLE(10), GRAPE(30), BANANA(100), PINEAPPLE(300);
+    NONE, APPLE(6), GRAPE(30), BANANA(100), PINEAPPLE(300);
     private int price;
 
     PlantType() {

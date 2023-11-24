@@ -10,7 +10,7 @@ public abstract class Plant implements Serializable{
     private static final long serialVersionUID = 6669682568296767219L;
     
     protected PlantType type;
-    protected static int price;
+    protected int price;
     protected int produceAmount;
     protected int infusionPrice;
     protected int fertilizerPrice;
@@ -23,7 +23,7 @@ public abstract class Plant implements Serializable{
     protected long timeOfStart;
     private long timeAtSave;
 
-    public static ImageIcon icon;
+    public ImageIcon icon;
     Plot plot;
     protected transient Timer timer;
 
@@ -31,6 +31,7 @@ public abstract class Plant implements Serializable{
         public void run() {
             produceAmount();
             timeOfStart = System.currentTimeMillis();
+            
         }
     }
 
@@ -48,10 +49,13 @@ public abstract class Plant implements Serializable{
         maxLevel = copy.maxLevel;
     }
 
+    
+
     public PlantType getType() { return type; }
     protected int getMaxLevel() { return maxLevel; }
-    public static int getPrice() { return price; }
+    public int getPrice() { return price; }
     public int getInfusionPrice() { return infusionPrice; }
+    public int getFertilizerPrice() { return fertilizerPrice; }
     public ImageIcon getIcon() { return icon; }
     public void setTimeAtSave() { timeAtSave = getElapsedTime(); }
     public long getTimeAtSave() { return timeAtSave; }
@@ -80,9 +84,33 @@ public abstract class Plant implements Serializable{
 
     }
 
-    public void upgradePlant() {}
+    public void upgradePlant() {
+        if(levelOfPlant >= getMaxLevel())
+            return;
 
-    public boolean speedUpPlant() { return false; }
+        produceAmount *= 2; //TODO: Ennél jobbat
+        infusionPrice *= 2;
+        levelOfPlant++;
+    }
+
+    public boolean speedUpPlant() { 
+        if((time / 2) <= minTime) {
+            if(time != minTime) {
+                time = minTime;
+                return true;
+            }
+            plot.game.showMessage("Plant is very fertile!");
+            return false;
+        }
+        time /= 2; //TODO: Ennél jobbat
+        fertilizerPrice *= 2;
+        long delay = getElapsedTime();
+        timer.cancel();
+        timer = new Timer();
+        timer.schedule(new ProduceFruit(), delay / 2, time); //A maradék időt már gyorsítva tölti le
+        timeOfStart = System.currentTimeMillis();
+        return true;
+    }
 
     
 }

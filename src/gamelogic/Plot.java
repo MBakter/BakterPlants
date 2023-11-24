@@ -27,7 +27,7 @@ public class Plot implements Serializable{
         array = new Plant[ROWS][COLS];
         numOfParcels = 0;
         numOfPlants = 0;
-        numOfFruits = 2000000000;
+        numOfFruits = 1000000;
         plotPrice = 0;
     }
 
@@ -73,9 +73,9 @@ public class Plot implements Serializable{
 
         numOfFruits -= plotPrice;
         if(plotPrice == 0)
-            plotPrice = 10;
-
-        plotPrice *= 2;
+            plotPrice = 40;
+        else
+            plotPrice *= 2;
         numOfParcels++;
         return true;
     }
@@ -92,11 +92,12 @@ public class Plot implements Serializable{
         //Ha van már plant akkor nem lehet ültetni
         if(isPlantInPlot(row, col))
             return;
+
         switch (plant) {
             case APPLE:
-                if(numOfFruits >= Apple.getPrice() || numOfPlants == 0) {
+                if(numOfFruits >= PlantType.APPLE.getPrice() || numOfPlants == 0) {
                     if(numOfPlants > 0)
-                        decreaseFruit(Apple.getPrice());
+                        decreaseFruit(PlantType.APPLE.getPrice());
                     array[row][col] = new Apple(this);
                     numOfPlants++;
                     updatePlantIcon(row, col);
@@ -106,18 +107,39 @@ public class Plot implements Serializable{
                 break;
 
             case GRAPE:
-                array[row][col] = new Grape(this);
-                System.out.println("Planted grape");
+                if(numOfFruits >= PlantType.GRAPE.getPrice() || numOfPlants == 0) {
+                    if(numOfPlants > 0)
+                        decreaseFruit(PlantType.GRAPE.getPrice());
+                    array[row][col] = new Grape(this);
+                    numOfPlants++;
+                    updatePlantIcon(row, col);
+                }
+                else
+                    game.showMessage("Not enough fruits for Grape");
                 break;
 
             case BANANA:
-                array[row][col] = new Banana(this);
-                System.out.println("Planted banana");
+                if(numOfFruits >= PlantType.BANANA.getPrice() || numOfPlants == 0) {
+                    if(numOfPlants > 0)
+                        decreaseFruit(PlantType.BANANA.getPrice());
+                    array[row][col] = new Banana(this);
+                    numOfPlants++;
+                    updatePlantIcon(row, col);
+                }
+                else
+                    game.showMessage("Not enough fruits for Banana");
                 break;
 
             case PINEAPPLE:
-                array[row][col] = new Pineapple(this);
-                System.out.println("Planted pinaapple");
+                if(numOfFruits >= PlantType.PINEAPPLE.getPrice() || numOfPlants == 0) {
+                    if(numOfPlants > 0)
+                        decreaseFruit(PlantType.PINEAPPLE.getPrice());
+                    array[row][col] = new Pineapple(this);
+                    numOfPlants++;
+                    updatePlantIcon(row, col);
+                }
+                else
+                    game.showMessage("Not enough fruits for Pineapple");
                 break;
             default:
                 break;
@@ -147,7 +169,7 @@ public class Plot implements Serializable{
         }
     }   
 
-    private void stopTimers() {
+    /* private void stopTimers() {
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
                 if(array[i][j] == null)
@@ -164,7 +186,7 @@ public class Plot implements Serializable{
                 array[i][j].startTimer();
             }
         }
-    }
+    } */
 
     //Initiates saving sequence
     public void initSave() {
@@ -252,5 +274,12 @@ public class Plot implements Serializable{
         this.numOfPlants = input.numOfPlants;
         this.plotPrice = input.plotPrice;
         this.game.initFromLoad(input);
+        //____Set plants___
+        for (int i = 0; i < Plot.getROWS(); i++) {
+            for (int j = 0; j < Plot.getCOLS(); j++) {
+                if(input.isPlantInPlot(i, j))
+                    loadPlants(i, j, input);
+            }
+        } 
     }
 }
