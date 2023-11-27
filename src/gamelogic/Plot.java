@@ -13,7 +13,6 @@ public class Plot implements Serializable{
     private Plant[][] array;
     private int numOfParcels;
     private int numOfFruits;
-    private int applePrice;
     private int plotPrice;
     private int numOfPlants;
     private static int ROWS = 3;
@@ -28,34 +27,46 @@ public class Plot implements Serializable{
         array = new Plant[ROWS][COLS];
         numOfParcels = 0;
         numOfPlants = 0;
-        numOfFruits = 300000;
+        numOfFruits = 0;
         plotPrice = 0;
     }
 
     public static int getROWS() {return ROWS;}
     public static int getCOLS() {return COLS;}
     public int getFruits() { return numOfFruits; }
-    public int getApplePrice() { return applePrice; }
+    public void setFruits(int f) { numOfFruits = f; }
     public int getPlotPrice() { return plotPrice; }
     public int getParcels() { return numOfParcels; }
     public Plant[][] getarray() { return array; }
     public int getPlants() { return numOfPlants; }
 
     public boolean isPlantInPlot(int row, int col) { 
+        if(row >= ROWS || col >= COLS)
+            return false;
         return array[row][col] != null; 
     }
 
     public void IncreaseFruit(int incrementValue) {
+        if(incrementValue <= 0)
+            return;
         numOfFruits += incrementValue;
         game.updateFruitCounterLabel();
     }
 
     public void decreaseFruit(int decrementValue) {
-        numOfFruits -= decrementValue;
+        if(decrementValue <= 0)
+            return;
+
+        if(numOfFruits - decrementValue >= 0)
+            numOfFruits -= decrementValue;
+
         game.updateFruitCounterLabel();
     }
 
     public boolean buyPlot() {
+        if(numOfParcels >= ROWS*COLS) 
+            return false;
+        
         if(numOfFruits < plotPrice){
             game.showMessage("Not enough fruits to buy plot!");
             return false;
@@ -75,12 +86,22 @@ public class Plot implements Serializable{
     }
 
     public void updatePlantIcon(int row, int col) {
+        if(row >= ROWS || col >= COLS)
+            return;
         game.getPlantLabels(row, col).setIcon(array[row][col].getIcon());
     }
 
     public void plantPlant(int row, int col, PlantType plant) {
         //Ha van már plant akkor nem lehet ültetni
-        if(isPlantInPlot(row, col))
+        if(isPlantInPlot(row, col)){
+            game.showMessage("Plot is occupied");
+            return;
+        }
+        if(numOfParcels < (col+1) * (row+1)){
+            System.err.println("Plot not bought");
+            return;
+        }
+        if(row >= ROWS || col >= COLS)
             return;
 
         switch (plant) {
@@ -93,11 +114,11 @@ public class Plot implements Serializable{
                     updatePlantIcon(row, col);
                 }
                 else
-                    game.showMessage("Not enough fruits for Apple");
+                    game.showMessage("Not enough fruits for Apple!");
                 break;
 
             case GRAPE:
-                if(numOfFruits >= PlantType.GRAPE.getPrice() || numOfPlants == 0) {
+                if(numOfFruits >= PlantType.GRAPE.getPrice()) {
                     if(numOfPlants > 0)
                         decreaseFruit(PlantType.GRAPE.getPrice());
                     array[row][col] = new Grape(this);
@@ -105,11 +126,11 @@ public class Plot implements Serializable{
                     updatePlantIcon(row, col);
                 }
                 else
-                    game.showMessage("Not enough fruits for Grape");
+                    game.showMessage("Not enough fruits for Grape!");
                 break;
 
             case BANANA:
-                if(numOfFruits >= PlantType.BANANA.getPrice() || numOfPlants == 0) {
+                if(numOfFruits >= PlantType.BANANA.getPrice()) {
                     if(numOfPlants > 0)
                         decreaseFruit(PlantType.BANANA.getPrice());
                     array[row][col] = new Banana(this);
@@ -117,11 +138,11 @@ public class Plot implements Serializable{
                     updatePlantIcon(row, col);
                 }
                 else
-                    game.showMessage("Not enough fruits for Banana");
+                    game.showMessage("Not enough fruits for Banana!");
                 break;
 
             case PINEAPPLE:
-                if(numOfFruits >= PlantType.PINEAPPLE.getPrice() || numOfPlants == 0) {
+                if(numOfFruits >= PlantType.PINEAPPLE.getPrice()) {
                     if(numOfPlants > 0)
                         decreaseFruit(PlantType.PINEAPPLE.getPrice());
                     array[row][col] = new Pineapple(this);
@@ -129,7 +150,7 @@ public class Plot implements Serializable{
                     updatePlantIcon(row, col);
                 }
                 else
-                    game.showMessage("Not enough fruits for Pineapple");
+                    game.showMessage("Not enough fruits for Pineapple!");
                 break;
             default:
                 break;
@@ -137,17 +158,37 @@ public class Plot implements Serializable{
     }
 
     public void fertilizePlant(int row, int col) {
-        if(isPlantInPlot(row, col) && numOfFruits >= array[row][col].fertilizerPrice && array[row][col].speedUpPlant()){
-            decreaseFruit(array[row][col].fertilizerPrice);
+        if(!isPlantInPlot(row, col)) 
+            return;
+        
+        if(array[row][col].time <= Plant.minTime) {
+            game.showMessage("This " + PlantType.convertToString(array[row][col].getType()) +  " is very fertile!");
+            return;
         }
+
+        if(numOfFruits >= array[row][col].fertilizerPrice){
+            decreaseFruit(array[row][col].fertilizerPrice);
+            array[row][col].speedUpPlant();
+        }
+        else
+            game.showMessage("Not enough fruits for Fertilization!");
     }
 
     public void infusePlant(int row, int col) {
-        if(isPlantInPlot(row, col) && numOfFruits >= array[row][col].infusionPrice){
+        if(!isPlantInPlot(row, col))
+            return;
+
+        if(array[row][col].levelOfPlant >= array[row][col].getMaxLevel()){
+            game.showMessage("This " + PlantType.convertToString(array[row][col].getType()) +  " is already super infused!");
+            return;
+        }
+        if(numOfFruits >= array[row][col].infusionPrice){
             decreaseFruit(array[row][col].infusionPrice);
             array[row][col].upgradePlant();
             updatePlantIcon(row, col);
         }
+        else
+            game.showMessage("Not enough fruits for Infusion!");
     }
 
     public void digPlant(int row, int col) {
@@ -160,14 +201,9 @@ public class Plot implements Serializable{
     }   
 
     public void fillPropList(Map<String, String> props, int row, int col) {
+        if(row >= ROWS || col >= COLS)
+            return;
         array[row][col].getProperties(props);
-        /* props.put("Plant", PlantType.convertToString(array[row][col].getType()));
-        props.put("Level", Integer.toString(array[row][col].getLevel()));
-        props.put("Produce Amount", Integer.toString(array[row][col].produceAmount) + " fruits");
-        props.put("Time to produce fruit", Long.toString(array[row][col].time/1000) + " sec");
-        props.put("Price", Integer.toString(array[row][col].price) + " fruits");
-        props.put("Infusion Price", Integer.toString(array[row][col].infusionPrice) + " fruits");
-        props.put("Fertilizer Price", Integer.toString(array[row][col].fertilizerPrice) + " fruits"); */
     }
 
     //Initiates saving sequence
@@ -205,7 +241,7 @@ public class Plot implements Serializable{
         File saveLocation = new File(System.getProperty("user.dir").toString() + File.separator + "saves");
         if(!saveLocation.exists()){
             game.showMessage("There is no file to load");
-            return; //There is nothing to load
+            return; 
         }
         JFileChooser chooser = new JFileChooser(saveLocation);
 
@@ -224,6 +260,8 @@ public class Plot implements Serializable{
     }
 
     public void loadPlants(int row, int col, Plot input) {
+        if(row >= ROWS || col >= COLS)
+            return;
         switch (input.getarray()[row][col].getType()) {
             case APPLE:
                 array[row][col] = new Apple(this, input.getarray()[row][col]);
@@ -250,7 +288,6 @@ public class Plot implements Serializable{
     }
 
     private void copyDataToThis(Plot input) {
-        this.applePrice = input.applePrice;
         this.numOfFruits = input.numOfFruits;
         this.numOfParcels = input.numOfParcels;
         this.numOfPlants = input.numOfPlants;

@@ -5,7 +5,8 @@ import java.io.File;
 import javax.swing.ImageIcon;
 
 public class Pineapple extends Plant {
-    Pineapple(Plot plot) {
+    
+    public Pineapple(Plot plot) {
         super(plot);
         type = PlantType.PINEAPPLE;
         price = PlantType.PINEAPPLE.getPrice(); 
@@ -19,7 +20,7 @@ public class Pineapple extends Plant {
     }
 
     //To be used when loading a save
-    Pineapple(Plot plot, Plant input) {
+    public Pineapple(Plot plot, Plant input) {
         super(plot, input);
     }
     

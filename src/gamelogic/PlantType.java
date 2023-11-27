@@ -4,10 +4,10 @@ public enum PlantType {
     NONE, APPLE(6), GRAPE(30), BANANA(100), PINEAPPLE(300);
     private int price;
 
-    PlantType() {
+    private PlantType() {
         price = 0;
     }
-    PlantType(int p) {
+    private PlantType(int p) {
         price = p;
     }
     public int getPrice() { return price; }

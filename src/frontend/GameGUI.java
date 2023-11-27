@@ -24,7 +24,7 @@ public class GameGUI implements Serializable {
     private Plot plot;
 
     private static int WIDTH = Plot.getCOLS()*301 + 105;
-    private static int HEIGHT = Plot.getROWS()*300 + 65;
+    private static int HEIGHT = Plot.getROWS()*300 + 65 + 30;
 
     public GameGUI() {
         createFrame();        
@@ -32,8 +32,9 @@ public class GameGUI implements Serializable {
 
         plot = new Plot(this);
         
-        createTopPanel();
+        createMenuBar();
         createMarketPanel();
+        createTopPanel();
 
         frame.add(plotPanel, BorderLayout.CENTER);
         frame.add(topPanel, BorderLayout.NORTH);
@@ -42,28 +43,59 @@ public class GameGUI implements Serializable {
         frame.setVisible(true);
     }
 
+    /** 
+     * Should be called, when the number of fruit changes in the plot.
+     * This changes the label in the topPanel
+    */
     public void updateFruitCounterLabel() {
         fruitCounterLabel.setText("Fruits: " + plot.getFruits());
     }
+
+    /**
+     * Should be called, when a new plot is bought.
+     * This changes the label on the buyPlot button in the marketPanel
+    */
     public void updateBuyPlotButtonText() {
         buyPlotButton.setText("Buy Plot: " + plot.getPlotPrice());
     }
 
+    /**
+     * Adds the @param component to the frame
+     */
     public void addToFrame(Component component) {
         frame.add(component);
     }
+    
+    /**
+     * Adds the @param component to the plotPanel
+     */
     public void addToPlotPanel(Component component) {
         plotPanel.add(component);
     }
+    
+    /**
+     * @return JFrame
+     */
     public JFrame getFrame() {
         return frame;
     }
     
-    //If we need to modify the plantlabel in x,y
+    /**
+     * Should be called if we need to modify the plantlabel in row, col.
+     * It returns the JLabel int row, col
+     * @param row 
+     * @param col
+     * @return JLabel
+     */
     public JLabel getPlantLabels(int row, int col) {
+        if(row >= Plot.getROWS() || col >= Plot.getCOLS())
+            return null;
         return plantLabels[row][col];
     }
 
+    /**
+     * Creates the frame
+     */
     private void createFrame() {
         frame = new JFrame("BakterPlants");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -73,9 +105,12 @@ public class GameGUI implements Serializable {
         frame.setIconImage(new ImageIcon("Graphics" + File.separator + "Apple.png").getImage());
     }
  
+    /**
+     * Creates the plotPanel. This is an n*m grid where the plot can be managed
+     */
     private void createPlotPanel() {
         plotPanel = new JPanel(new GridLayout(Plot.getROWS(), Plot.getCOLS()));
-        plotPanel.setBackground(new Color(77, 88, 99));
+        plotPanel.setBackground(new Color(77, 80, 100));
         plantLabels = new JLabel[Plot.getROWS()][Plot.getCOLS()];
 
         for (int row = 0; row < Plot.getROWS(); row++) {
@@ -89,8 +124,17 @@ public class GameGUI implements Serializable {
     }
 
     private void createTopPanel() {
-        topPanel = new JPanel(new GridLayout(1, 3));
+        topPanel = new JPanel(new GridLayout(0, 2));
+        topPanel.setBackground(new Color(90, 80, 100));
+        fruitCounterLabel = new JLabel(" Fruits: " + plot.getFruits());
+        fruitCounterLabel.setFont(fruitCounterLabel.getFont().deriveFont(Font.BOLD, 20));
+        fruitCounterLabel.setForeground(Color.WHITE);
+        fruitCounterLabel.setPreferredSize(new Dimension(100, 30));
 
+        topPanel.add(fruitCounterLabel, BorderLayout.CENTER);
+    }
+
+    private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         JMenu mainMenu = new JMenu("Menu");
         JMenuItem save = new JMenuItem("Save");
@@ -104,16 +148,15 @@ public class GameGUI implements Serializable {
         mainMenu.add(save);
         mainMenu.add(load);
         menuBar.add(mainMenu);
-
-        fruitCounterLabel = new JLabel("Fruits: " + plot.getFruits());
-
-        topPanel.add(menuBar);
-        topPanel.add(fruitCounterLabel);
+        frame.setJMenuBar(menuBar);
     }
 
     private void createMarketPanel() {
-        marketPanel = new JPanel(new GridLayout(9, 1));
+        marketPanel = new JPanel(new GridLayout(1, 1));
+        marketPanel.setBackground(new Color(77, 80, 100));
         buyPlotButton = new JButton("Buy Plot: " + plot.getPlotPrice());
+        buyPlotButton.setBackground(new Color(90, 80, 100));
+        buyPlotButton.setForeground(Color.WHITE);
 
         //If a new plot is bought, 
         buyPlotButton.addActionListener(e -> { 
@@ -128,7 +171,9 @@ public class GameGUI implements Serializable {
         marketPanel.add(buyPlotButton);
     }
 
-    public void increaseParcelLabel(int currentRow, int currentCol) {
+    private void increaseParcelLabel(int currentRow, int currentCol) {
+        if(currentRow >= Plot.getROWS() || currentCol >= Plot.getCOLS())
+            return;
 
         //Change texture of the plot to grass
         plantLabels[currentRow][currentCol].setIcon(Plot.occupiedPlotIcon);
@@ -157,7 +202,18 @@ public class GameGUI implements Serializable {
 
         JMenuItem digMI = new JMenuItem("Dig up the ground");
         digMI.addActionListener(e->{
-            plot.digPlant(currentRow, currentCol);
+            int result = JOptionPane.showOptionDialog(
+                null,
+                "You pick up the shovel, but stop for a moment...\nDo you really want to start digging?",
+                "Digging...",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new Object[]{"Start digging", "Put down shovel"},
+                "Yes"
+            );
+            if(result == JOptionPane.YES_OPTION)
+                plot.digPlant(currentRow, currentCol);
         });
         popMenu.add(digMI);
 
@@ -182,7 +238,7 @@ public class GameGUI implements Serializable {
 
     }
 
-    public void addItemToPlantMenu(JMenuItem menu, PlantType pType, int row, int col) {
+    private void addItemToPlantMenu(JMenuItem menu, PlantType pType, int row, int col) {
         JMenuItem item = new JMenuItem(PlantType.convertToString(pType) + ":  " + pType.getPrice() + ".-");
 
         item.addActionListener(new ActionListener() {
@@ -194,12 +250,6 @@ public class GameGUI implements Serializable {
 
         menu.add(item);
     }
-
-    /* public void createProgressBar(int row, int col) {
-        JProgressBar bar = new JProgressBar(0, 100);
-        Timer t = new Timer(col, null)
-        plantLabels[row][col].add(bar);
-    } */
 
     public void fruitAnimation(int row, int col) {
         JLabel floatingLabel = new JLabel(new ImageIcon("Graphics" + File.separator + "Fruit.png"));

@@ -25,7 +25,7 @@ public abstract class Plant implements Serializable{
     private long timeAtSave;
 
     public ImageIcon icon;
-    Plot plot;
+    private Plot plot;
     protected transient Timer timer;
 
     class ProduceFruit extends TimerTask {
@@ -36,22 +36,15 @@ public abstract class Plant implements Serializable{
         }
     }
 
-    Plant(Plot plot) {
+    public Plant(Plot plot) {
         this.plot = plot;
         timer = new Timer();
         levelOfPlant = 1;
         maxLevel = 5;
     }
 
-    /* Plant(Plot plot, Plant copy) {
-        this.plot = plot;
-        timer = new Timer();
-        levelOfPlant = copy.levelOfPlant;
-        maxLevel = copy.maxLevel;
-    } */
-
     //To be used when loading a save
-    Plant(Plot plot, Plant input) {
+    public Plant(Plot plot, Plant input) {
         this.plot = plot;
         timer = new Timer();
         levelOfPlant = input.levelOfPlant;
@@ -102,31 +95,31 @@ public abstract class Plant implements Serializable{
     }
 
     public void upgradePlant() {
-        if(levelOfPlant >= getMaxLevel())
+        if(levelOfPlant >= getMaxLevel()){
             return;
+        }
 
-        produceAmount *= 2; //TODO: Ennél jobbat
+        produceAmount *= 2; 
         infusionPrice *= 2;
         levelOfPlant++;
     }
 
-    public boolean speedUpPlant() { 
-        if((time / 2) <= minTime) {
-            if(time != minTime) {
-                time = minTime;
-                return true;
-            }
-            plot.game.showMessage("Plant is very fertile!");
-            return false;
+    public void speedUpPlant() {
+        if(time == minTime)
+            return;
+
+        if((time / 2) < minTime) {
+            time = minTime;
         }
-        time /= 2; //TODO: Ennél jobbat
+        else
+            time /= 2;
         fertilizerPrice *= 2;
         long delay = getElapsedTime();
         timer.cancel();
         timer = new Timer();
         timer.schedule(new ProduceFruit(), delay / 2, time); //A maradék időt már gyorsítva tölti le
         timeOfStart = System.currentTimeMillis();
-        return true;
+        return;
     }
 
     public void getProperties(Map<String, String> props) {
@@ -135,7 +128,9 @@ public abstract class Plant implements Serializable{
         props.put("Produce Amount", Integer.toString(produceAmount) + " fruits");
         props.put("Time to produce fruit", Long.toString(time/1000) + " sec");
         props.put("Price", Integer.toString(price) + " fruits");
-        props.put("Infusion Price", Integer.toString(infusionPrice) + " fruits");
-        props.put("Fertilizer Price", Integer.toString(fertilizerPrice) + " fruits");
+        if(levelOfPlant != maxLevel)
+            props.put("Infusion Price", Integer.toString(infusionPrice) + " fruits");
+        if(time > minTime)
+            props.put("Fertilizer Price", Integer.toString(fertilizerPrice) + " fruits");
     }    
 }

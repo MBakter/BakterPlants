@@ -5,7 +5,8 @@ import java.io.File;
 import javax.swing.ImageIcon;
 
 public class Grape extends Plant {
-    Grape(Plot plot) {
+    
+    public Grape(Plot plot) {
         super(plot);
         type = PlantType.GRAPE;
         price = PlantType.GRAPE.getPrice(); 
@@ -19,7 +20,7 @@ public class Grape extends Plant {
     }
 
     //To be used when loading a save
-    Grape(Plot plot, Plant input) {
+    public Grape(Plot plot, Plant input) {
         super(plot, input);
     }
 }
