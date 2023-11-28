@@ -30,7 +30,7 @@ public class Plot implements Serializable{
         array = new Plant[ROWS][COLS];
         numOfParcels = 0;
         numOfPlants = 0;
-        numOfFruits = 10000;
+        numOfFruits = 0;
         plotPrice = 0;
     }
 
