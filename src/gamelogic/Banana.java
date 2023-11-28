@@ -6,6 +6,10 @@ import javax.swing.ImageIcon;
 
 public class Banana extends Plant {
     
+    /**
+     * The constructor of this plant sets everything according to its properties
+     * @param plot Plot parameter is needed to call the ancestor class's constructor 
+     */
     public Banana(Plot plot) {
         super(plot);
         type = PlantType.BANANA;
@@ -19,7 +23,10 @@ public class Banana extends Plant {
         super.startTimer();
     }
 
-    //To be used when loading a save
+    /**
+     * The copy constructor is to be used when loading a save.
+     * It calls the ancestor's copy constuctor with @param input and @param plot 
+     */
     public Banana(Plot plot, Plant input) {
         super(plot, input);
     }

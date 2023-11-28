@@ -6,6 +6,10 @@ import javax.swing.ImageIcon;
 
 public class Pineapple extends Plant {
     
+    /**
+     * The constructor of this plant sets everything according to its properties
+     * @param plot Plot parameter is needed to call the ancestor class's constructor 
+     */
     public Pineapple(Plot plot) {
         super(plot);
         type = PlantType.PINEAPPLE;
@@ -19,7 +23,10 @@ public class Pineapple extends Plant {
         super.startTimer();
     }
 
-    //To be used when loading a save
+    /**
+     * The copy constructor is to be used when loading a save.
+     * It calls the ancestor's copy constuctor with @param input and @param plot 
+     */
     public Pineapple(Plot plot, Plant input) {
         super(plot, input);
     }

@@ -7,12 +7,10 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class GameGUI implements Serializable {
-    private static final long serialVersionUID = 2225901656906345936L;
+public class GameGUI {
     private JFrame frame;
     private JPanel plotPanel;
     private JPanel topPanel;
@@ -26,6 +24,9 @@ public class GameGUI implements Serializable {
     private static int WIDTH = Plot.getCOLS()*301 + 105;
     private static int HEIGHT = Plot.getROWS()*300 + 65 + 30;
 
+    /**
+     * The constructor creates the frame and its components by calling several helper functions in the class
+     */
     public GameGUI() {
         createFrame();        
         createPlotPanel();
@@ -123,6 +124,9 @@ public class GameGUI implements Serializable {
         }
     }
 
+    /**
+     * Creates the topPanel. Sets the fruit counter to the starting value of plot's number of fruits.
+     */
     private void createTopPanel() {
         topPanel = new JPanel(new GridLayout(0, 2));
         topPanel.setBackground(new Color(90, 80, 100));
@@ -134,6 +138,10 @@ public class GameGUI implements Serializable {
         topPanel.add(fruitCounterLabel, BorderLayout.CENTER);
     }
 
+    /**
+     * Creates the top menu bar. Adds a menu called Menu, and to it adds two menuItems, save and load.
+     * They can be used to save/load the game. They each call plot's initsave/load function
+     */
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         JMenu mainMenu = new JMenu("Menu");
@@ -151,6 +159,12 @@ public class GameGUI implements Serializable {
         frame.setJMenuBar(menuBar);
     }
 
+    /**
+     * Creates the market panel. It is a grid layout so that it can be easily expanded to more items to buy.
+     * In the current state of the game, only a buy plot button is inside. It shows the price of a new plot,
+     * initially 0. If it is pressed, calls the plot's buyPlot function and if it returns true, increases the
+     * parcelLabels, thus calling the increaseParcelLabel function.
+     */
     private void createMarketPanel() {
         marketPanel = new JPanel(new GridLayout(1, 1));
         marketPanel.setBackground(new Color(77, 80, 100));
@@ -165,12 +179,17 @@ public class GameGUI implements Serializable {
                 updateFruitCounterLabel(); //Update number of fruits
                 increaseParcelLabel((int)((plot.getParcels()-1) / Plot.getCOLS()), (int)(plot.getParcels()-1) % Plot.getCOLS());
                 if(plot.getParcels() >= Plot.getCOLS()*Plot.getROWS())
-                    marketPanel.remove(buyPlotButton); //Ha megvan az összes plot akkor ne legyen ott a buyplots gomb
+                    marketPanel.remove(buyPlotButton); //If all plots is bought, buyPlot button should be removed
             }
         });
         marketPanel.add(buyPlotButton);
     }
 
+    /**
+     * This is called when a new plot is bought with the buy plot button. It creates an occupied plot by 
+     * updating the parcelLabel in location @param currentRow and @param currentCol and adds the
+     * functions to it, which can be accessed by right clicking on the component.
+     */
     private void increaseParcelLabel(int currentRow, int currentCol) {
         if(currentRow >= Plot.getROWS() || currentCol >= Plot.getCOLS())
             return;
@@ -238,6 +257,16 @@ public class GameGUI implements Serializable {
 
     }
 
+    /**
+     * It's a helper function for increase parcel label, creates a menuItem with one PlantType @param pType thus adding an option
+     * to plant them. It should be called to all existing plantTypes to ensure that if a new plant is added to the game, 
+     * this class is not needed to be modified.
+     * Clicking on the name of the plant calls the plot's plantPlant function.
+     * @param menu The MenuItem where all all plants are added
+     * The plantLabel parameters:
+     * @param row
+     * @param col
+    */
     private void addItemToPlantMenu(JMenuItem menu, PlantType pType, int row, int col) {
         JMenuItem item = new JMenuItem(PlantType.convertToString(pType) + ":  " + pType.getPrice() + ".-");
 
@@ -251,7 +280,7 @@ public class GameGUI implements Serializable {
         menu.add(item);
     }
 
-    public void fruitAnimation(int row, int col) {
+    /* public void fruitAnimation(int row, int col) {
         JLabel floatingLabel = new JLabel(new ImageIcon("Graphics" + File.separator + "Fruit.png"));
         plantLabels[row][col].add(floatingLabel, BorderLayout.CENTER);
         
@@ -273,9 +302,13 @@ public class GameGUI implements Serializable {
             }
         });
         timer.start();
+    } */
 
-    }
-
+    /**
+     * Creates a dialog consisting of a table with the properties of a plant on which it is called. 
+     * These are queried through the plot and the plant class
+     * @param row and @param col parameters are the locations in the plot's array to the current plant
+     */
     public void createPropertiesTable(int row, int col) {
         if(!plot.isPlantInPlot(row, col)) {
             showMessage("There are no known properies of grass");
@@ -317,15 +350,21 @@ public class GameGUI implements Serializable {
         
     }
     
+    /**
+     * It gets a Plot @param input and updates the buyPlot price and calls the increaseParcelLabel to each occupies parcels
+     * in the input Plot.
+     */
     public void initFromLoad(Plot input) {
         //____Set plots____
         updateBuyPlotButtonText();
-        updateFruitCounterLabel();
         for (int i = 1; i <= input.getParcels(); i++) {
             increaseParcelLabel((int)((i-1) / Plot.getCOLS()), (int)(i-1) % Plot.getCOLS());
         }
-    }
+    } 
 
+    /**
+     * Creates an option pane with a @param message String. Should be used to throw a note or a warning to the user.
+     */
     public void showMessage(String message) {
         JOptionPane.showMessageDialog(frame, message);
     }
