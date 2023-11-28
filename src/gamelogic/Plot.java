@@ -30,7 +30,7 @@ public class Plot implements Serializable{
         array = new Plant[ROWS][COLS];
         numOfParcels = 0;
         numOfPlants = 0;
-        numOfFruits = 0;
+        numOfFruits = 10000;
         plotPrice = 0;
     }
 
@@ -172,8 +172,7 @@ public class Plot implements Serializable{
 
             case GRAPE:
                 if(numOfFruits >= PlantType.GRAPE.getPrice()) {
-                    if(numOfPlants > 0)
-                        decreaseFruit(PlantType.GRAPE.getPrice());
+                    decreaseFruit(PlantType.GRAPE.getPrice());
                     array[row][col] = new Grape(this);
                     numOfPlants++;
                     updatePlantIcon(row, col);
@@ -184,8 +183,7 @@ public class Plot implements Serializable{
 
             case BANANA:
                 if(numOfFruits >= PlantType.BANANA.getPrice()) {
-                    if(numOfPlants > 0)
-                        decreaseFruit(PlantType.BANANA.getPrice());
+                    decreaseFruit(PlantType.BANANA.getPrice());
                     array[row][col] = new Banana(this);
                     numOfPlants++;
                     updatePlantIcon(row, col);
@@ -196,8 +194,7 @@ public class Plot implements Serializable{
 
             case PINEAPPLE:
                 if(numOfFruits >= PlantType.PINEAPPLE.getPrice()) {
-                    if(numOfPlants > 0)
-                        decreaseFruit(PlantType.PINEAPPLE.getPrice());
+                    decreaseFruit(PlantType.PINEAPPLE.getPrice());
                     array[row][col] = new Pineapple(this);
                     numOfPlants++;
                     updatePlantIcon(row, col);

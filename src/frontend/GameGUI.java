@@ -22,7 +22,7 @@ public class GameGUI {
     private Plot plot;
 
     private static int WIDTH = Plot.getCOLS()*301 + 105;
-    private static int HEIGHT = Plot.getROWS()*300 + 65 + 30;
+    private static int HEIGHT = Plot.getROWS()*300 + 95;
 
     /**
      * The constructor creates the frame and its components by calling several helper functions in the class
